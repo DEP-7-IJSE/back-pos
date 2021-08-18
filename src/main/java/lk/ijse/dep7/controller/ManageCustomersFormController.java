@@ -9,9 +9,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.dep7.util.CustomerTM;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +25,13 @@ public class ManageCustomersFormController {
     public JFXButton btnDelete;
     public JFXButton btnSave;
     public JFXTextField txtCustomerAddress;
-    public TableView tblCustomers;
+    public TableView<CustomerTM> tblCustomers;
+
+    public void initialize(){
+        tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
+        tblCustomers.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
+        tblCustomers.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
+    }
 
     @FXML
     private void navigateToHome(MouseEvent event) throws IOException {
