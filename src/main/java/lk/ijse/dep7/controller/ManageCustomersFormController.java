@@ -31,6 +31,10 @@ public class ManageCustomersFormController {
         tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
         tblCustomers.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
         tblCustomers.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
+
+        txtCustomerId.setEditable(false);
+        btnSave.setDisable(true);
+        btnDelete.setDisable(true);
     }
 
     @FXML
@@ -45,11 +49,26 @@ public class ManageCustomersFormController {
     }
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
+        txtCustomerId.clear();
+        txtCustomerId.setText(generateNewId());
+        txtCustomerName.clear();
+        txtCustomerAddress.clear();
+        txtCustomerName.requestFocus();
+        btnSave.setDisable(false);
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
     }
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
+    }
+
+    private String generateNewId(){
+        if (tblCustomers.getItems().isEmpty()) {
+            return "C001";
+        }else {
+            // Todo: generate new id
+            throw new UnsupportedOperationException("Yet to implement");
+        }
     }
 }
