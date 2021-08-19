@@ -31,20 +31,26 @@
       </ImageView>
       <Label layoutX="95.0" layoutY="24.0" text="Place Order">
          <font>
-            <Font name="Lucida Sans Demibold" size="27.0" />
+            <Font name="Lucida Sans Demibold" size="27.0"/>
          </font>
       </Label>
-<!--      <JFXButton id="btnAddNewOrder" fx:id="btnAddNewOrder" layoutX="518.0" layoutY="25.0" onAction="#btnAddNew_OnAction" prefHeight="35.0" prefWidth="122.0" style="-fx-cursor: hand; -fx-background-color: #007bff; -fx-text-fill: white;" text="+ New Order" />-->
+      <!--      <JFXButton id="btnAddNewOrder" fx:id="btnAddNewOrder" layoutX="518.0" layoutY="25.0" onAction="#btnAddNew_OnAction" prefHeight="35.0" prefWidth="122.0" style="-fx-cursor: hand; -fx-background-color: #007bff; -fx-text-fill: white;" text="+ New Order" />-->
       <JFXComboBox fx:id="cmbCustomerId" labelFloat="true" layoutX="14.0" layoutY="132.0" prefHeight="28.0"
                    prefWidth="161.0" promptText="Customer ID :"/>
-      <JFXTextField fx:id="txtCustomerName" labelFloat="true" layoutX="195.0" layoutY="132.0" prefHeight="28.0" prefWidth="437.0" promptText="Customer Name :" />
-      <JFXTextField fx:id="txtDescription" labelFloat="true" layoutX="195.0" layoutY="178.0" prefHeight="28.0" prefWidth="437.0" promptText="Item Description :" />
+      <JFXTextField fx:id="txtCustomerName" labelFloat="true" layoutX="195.0" layoutY="132.0" prefHeight="28.0"
+                    prefWidth="437.0" promptText="Customer Name :"/>
       <JFXComboBox fx:id="cmbItemCode" labelFloat="true" layoutX="14.0" layoutY="178.0" prefHeight="28.0"
                    prefWidth="161.0" promptText="Item Code :"/>
-      <JFXTextField fx:id="txtQtyOnHand" labelFloat="true" layoutX="17.0" layoutY="226.0" prefHeight="28.0" prefWidth="161.0" promptText="Qty. on Hand" />
+      <JFXTextField fx:id="txtDescription" labelFloat="true" layoutX="195.0" layoutY="178.0" prefHeight="28.0"
+                    prefWidth="437.0" promptText="Item Description :"/>
+      <JFXTextField fx:id="txtQtyOnHand" labelFloat="true" layoutX="17.0" layoutY="226.0" prefHeight="28.0"
+                    prefWidth="161.0" promptText="Qty. on Hand"/>
       <JFXTextField fx:id="txtUnitPrice" labelFloat="true" layoutX="195.0" layoutY="226.0" prefHeight="28.0"
                     prefWidth="161.0" promptText="Unit Price"/>
-      <JFXButton id="btnSave" fx:id="btnSave" layoutX="558.0" layoutY="226.0" onAction="#btnAdd_OnAction" prefHeight="28.0" prefWidth="74.0" style="-fx-cursor: hand;" text="Add" />
+      <JFXTextField fx:id="txtQty" labelFloat="true" layoutX="370.0" layoutY="226.0" onAction="#txtQty_OnAction"
+                    prefHeight="28.0" prefWidth="161.0" promptText="Qty."/>
+      <JFXButton id="btnSave" fx:id="btnSave" layoutX="558.0" layoutY="226.0" onAction="#btnAdd_OnAction"
+                 prefHeight="28.0" prefWidth="74.0" style="-fx-cursor: hand;" text="Add"/>
       <TableView fx:id="tblOrderDetails" layoutX="22.0" layoutY="280.0" prefHeight="189.0" prefWidth="615.0">
          <columns>
             <TableColumn prefWidth="77.0" text="Code"/>
@@ -55,8 +61,7 @@
             <TableColumn prefWidth="99.0" text="Delete"/>
          </columns>
       </TableView>
-<!--      <JFXTextField fx:id="txtQty" onKeyPressed="#txtQty_OnKeyPressed" labelFloat="true" layoutX="370.0" layoutY="226.0" prefHeight="28.0" prefWidth="161.0" promptText="Qty." />-->
-      <JFXTextField fx:id="txtQty" labelFloat="true" layoutX="370.0" layoutY="226.0" onAction="#txtQty_OnAction" prefHeight="28.0" prefWidth="161.0" promptText="Qty." />
+      <!--      <JFXTextField fx:id="txtQty" onKeyPressed="#txtQty_OnKeyPressed" labelFloat="true" layoutX="370.0" layoutY="226.0" prefHeight="28.0" prefWidth="161.0" promptText="Qty." />-->
       <Label fx:id="lblId" alignment="CENTER_RIGHT" layoutX="486.0" layoutY="68.0" prefHeight="24.0" prefWidth="152.0" text="ORDER ID : OD001">
          <font>
             <Font size="17.0" />
