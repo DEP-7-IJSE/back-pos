@@ -37,7 +37,7 @@ public class ManageCustomersFormController {
     public JFXButton btnAddNewCustomer;
     public JFXTextField txtCustomerAddress;
     public TableView<CustomerTM> tblCustomers;
-    private CustomerService customerService = new CustomerService(SingleConnectionDataSource.getInstance().getConnection());
+    private final CustomerService customerService = new CustomerService(SingleConnectionDataSource.getInstance().getConnection());
 
     public void initialize() throws FailedOperationException {
         tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -78,10 +78,10 @@ public class ManageCustomersFormController {
         Stage primaryStage = (Stage) (this.root.getScene().getWindow());
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
-        Platform.runLater(()->primaryStage.sizeToScene());
+        Platform.runLater(primaryStage::sizeToScene);
     }
 
-    public void btnAddNew_OnAction(ActionEvent actionEvent) {
+    public void btnAddNew_OnAction(ActionEvent actionEvent) throws FailedOperationException {
         txtCustomerId.setDisable(false);
         txtCustomerName.setDisable(false);
         txtCustomerAddress.setDisable(false);
@@ -150,14 +150,21 @@ public class ManageCustomersFormController {
         }
     }
 
-    private String generateNewId() {
-        if (tblCustomers.getItems().isEmpty()) {
+    private String generateNewId() throws FailedOperationException {
+        try {
+            return customerService.generateNewCustomerId();
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        }
+
+        /*if (tblCustomers.getItems().isEmpty()) {
             return "C001";
         } else {
             String id = getLastCustomerId();
             int newCustomerId = Integer.parseInt(id.replace("C", "")) + 1;
             return String.format("C%03d", newCustomerId);
-        }
+        }*/
     }
 
     private String getLastCustomerId() {

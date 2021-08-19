@@ -98,4 +98,19 @@ public class CustomerService {
             throw new FailedOperationException("Failed to delete customer", e);
         }
     }
+
+    public String generateNewCustomerId() throws FailedOperationException {
+        try {
+            ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM customer ORDER BY id DESC LIMIT 1;");
+            if (rst.next()) {
+                String id = rst.getString("id");
+                int newCustomerId = Integer.parseInt(id.replace("C", "")) + 1;
+                return String.format("C%03d", newCustomerId);
+            } else {
+                return "C001";
+            }
+        } catch (SQLException e) {
+            throw new FailedOperationException("Failed to generate new id", e);
+        }
+    }
 }
