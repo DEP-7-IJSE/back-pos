@@ -14,6 +14,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
+import lk.ijse.dep7.exception.FailedOperationException;
+import lk.ijse.dep7.service.CustomerService;
 import lk.ijse.dep7.util.CustomerTM;
 
 import java.io.IOException;
@@ -28,8 +31,9 @@ public class ManageCustomersFormController {
     public JFXButton btnAddNewCustomer;
     public JFXTextField txtCustomerAddress;
     public TableView<CustomerTM> tblCustomers;
+    private CustomerService customerService = new CustomerService(SingleConnectionDataSource.getInstance().getConnection());
 
-    public void initialize() {
+    public void initialize() throws FailedOperationException {
         tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
         tblCustomers.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
         tblCustomers.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
@@ -57,6 +61,7 @@ public class ManageCustomersFormController {
         });
 
         txtCustomerAddress.setOnAction(event -> btnSave.fire());
+        loadAllCustomers();
     }
 
     @FXML
@@ -85,7 +90,7 @@ public class ManageCustomersFormController {
         tblCustomers.getSelectionModel().clearSelection();
     }
 
-    public void btnSave_OnAction(ActionEvent actionEvent) {
+    public void btnSave_OnAction(ActionEvent actionEvent) throws FailedOperationException {
         String id = txtCustomerId.getText();
         String name = txtCustomerName.getText();
         String address = txtCustomerAddress.getText();
@@ -125,6 +130,16 @@ public class ManageCustomersFormController {
             String id = tblCustomers.getItems().get(tblCustomers.getItems().size() - 1).getId();
             int newCustomerId = Integer.parseInt(id.replace("C", "")) + 1;
             return String.format("C%03d", newCustomerId);
+        }
+    }
+
+    private void loadAllCustomers() throws FailedOperationException {
+        tblCustomers.getItems().clear();
+        try {
+            customerService.findAllCustomers().forEach(dto -> tblCustomers.getItems().add(new CustomerTM(dto.getId(), dto.getName(), dto.getAddress())));
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
         }
     }
 

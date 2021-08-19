@@ -55,7 +55,7 @@ class CustomerServiceTest {
     @Test
     void deleteCustomer() throws NotFoundException, FailedOperationException, SQLException {
         customerService.deleteCustomer("C001");
-        assertFalse(SingleConnectionDataSource.getInstance().getConnection().prepareStatement("SELECT * FROM customer WHERE id='" + "C001'").executeQuery().next());
+        assertFalse(SingleConnectionDataSource.getInstance().getConnection().prepareStatement("SELECT * FROM customer WHERE id='C001';").executeQuery().next());
         assertThrows(NotFoundException.class, () -> customerService.deleteCustomer("C100"));
     }
 
@@ -70,7 +70,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void findAllCustomer() throws FailedOperationException, DuplicateIdentifierException, SQLException {
+    void findAllCustomers() throws FailedOperationException, DuplicateIdentifierException, SQLException {
         saveCustomer();
         assertEquals(customerService.findAllCustomers().size(), 2);
     }
