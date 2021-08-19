@@ -58,6 +58,9 @@ public class PlaceOrderFormController {
         TableColumn<OrderDetailTM, Button> lastCol = (TableColumn<OrderDetailTM, Button>) tblOrderDetails.getColumns().get(5);
         lastCol.setCellValueFactory(param -> {
             Button btnDelete = new Button("Delete");
+            btnDelete.setOnAction(event -> {
+                tblOrderDetails.getItems().remove(param.getValue());
+            });
 
             return new ReadOnlyObjectWrapper<>(btnDelete);
         });
@@ -67,6 +70,13 @@ public class PlaceOrderFormController {
         lblDate.setText(LocalDate.now().toString());
         btnPlaceOrder.setDisable(true);
         txtCustomerName.setEditable(false);
+        txtCustomerName.setFocusTraversable(false);
+        txtDescription.setEditable(false);
+        txtDescription.setFocusTraversable(false);
+        txtUnitPrice.setEditable(false);
+        txtUnitPrice.setFocusTraversable(false);
+        txtQtyOnHand.setEditable(false);
+        txtQtyOnHand.setFocusTraversable(false);
         txtQty.setOnAction(event -> btnSave.fire());
         txtQty.setEditable(false);
         btnSave.setDisable(true);
@@ -100,6 +110,11 @@ public class PlaceOrderFormController {
                     new Alert(Alert.AlertType.ERROR, "Failed to load item information").show();
                     throw new RuntimeException(e);
                 }
+            } else {
+                txtDescription.clear();
+                txtQty.clear();
+                txtQtyOnHand.clear();
+                txtUnitPrice.clear();
             }
         });
 
@@ -137,13 +152,15 @@ public class PlaceOrderFormController {
     }
 
     public void btnAdd_OnAction(ActionEvent actionEvent) {
-        if (!txtQty.getText().matches("\\d+}") || Integer.parseInt(txtQty.getText()) <= 0 ||
+
+        if (!txtQty.getText().matches("\\d+") || Integer.parseInt(txtQty.getText()) <= 0 ||
                 Integer.parseInt(txtQty.getText()) > Integer.parseInt(txtQtyOnHand.getText())) {
             new Alert(Alert.AlertType.ERROR, "Invalid Qty").show();
             txtQty.requestFocus();
             txtQty.selectAll();
             return;
         }
+
         String itemCode = cmbItemCode.getSelectionModel().getSelectedItem();
         String description = txtDescription.getText();
         BigDecimal unitPrice = new BigDecimal(txtUnitPrice.getText()).setScale(2);
@@ -151,6 +168,8 @@ public class PlaceOrderFormController {
         BigDecimal total = unitPrice.multiply(new BigDecimal(qty)).setScale(2);
 
         tblOrderDetails.getItems().add(new OrderDetailTM(itemCode, description, qty, unitPrice, total));
+        cmbItemCode.getSelectionModel().clearSelection();
+        cmbItemCode.requestFocus();
     }
 
     public void txtQty_OnAction(ActionEvent actionEvent) {
