@@ -151,7 +151,7 @@ public class ManageItemsFormController {
                 } catch (DuplicateIdentifierException e) {
                     new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
                 }
-                tblItems.getItems().add(new ItemTM(code, description, new BigDecimal(unitPrice), Integer.parseInt(qtyOnHand)));
+                tblItems.getItems().add(new ItemTM(code, description, new BigDecimal(unitPrice).setScale(2), Integer.parseInt(qtyOnHand)));
             } else {
                 try {
                     itemService.updateItem(new ItemDTO(code, description, new BigDecimal(unitPrice), Integer.parseInt(qtyOnHand)));
@@ -174,7 +174,7 @@ public class ManageItemsFormController {
     private void loadAllItems() throws FailedOperationException {
         tblItems.getItems().clear();
         try {
-            itemService.findAllItems().forEach(dto -> tblItems.getItems().add(new ItemTM(dto.getCode(), dto.getDescription(), dto.getUnitPrice(), dto.getQtyOnHand())));
+            itemService.findAllItems().forEach(dto -> tblItems.getItems().add(new ItemTM(dto.getCode(), dto.getDescription(), dto.getUnitPrice().setScale(2), dto.getQtyOnHand())));
         } catch (FailedOperationException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
             throw e;

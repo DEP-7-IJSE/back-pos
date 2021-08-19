@@ -10,6 +10,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Customer Service API
+ *
+ * @author pethum
+ * @version 0.1.0
+ */
+
 public class CustomerService {
     private Connection connection = SingleConnectionDataSource.getInstance().getConnection();
 
@@ -20,6 +27,13 @@ public class CustomerService {
         this.connection = connection;
     }
 
+    /**
+     * Invoke to save a new customer
+     *
+     * @param customer
+     * @throws DuplicateIdentifierException
+     * @throws FailedOperationException
+     */
     public void saveCustomer(CustomerDTO customer) throws DuplicateIdentifierException, FailedOperationException {
         try {
             if (existCustomer(customer.getId()))
