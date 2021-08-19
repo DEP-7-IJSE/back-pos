@@ -30,6 +30,8 @@ import java.time.LocalDate;
 
 public class PlaceOrderFormController {
 
+    private final CustomerService customerService = new CustomerService(SingleConnectionDataSource.getInstance().getConnection());
+    private final ItemService itemService = new ItemService(SingleConnectionDataSource.getInstance().getConnection());
     public AnchorPane root;
     public JFXButton btnPlaceOrder;
     public JFXTextField txtCustomerName;
@@ -38,10 +40,6 @@ public class PlaceOrderFormController {
     public JFXButton btnSave;
     public TableView<OrderDetailTM> tblOrderDetails;
     public JFXTextField txtUnitPrice;
-
-    private final CustomerService customerService = new CustomerService(SingleConnectionDataSource.getInstance().getConnection());
-    private final ItemService itemService = new ItemService(SingleConnectionDataSource.getInstance().getConnection());
-
     public JFXComboBox<String> cmbCustomerId;
     public JFXTextField txtQty;
     public Label lblId;
@@ -56,6 +54,7 @@ public class PlaceOrderFormController {
         tblOrderDetails.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
         tblOrderDetails.getColumns().get(4).setCellValueFactory(new PropertyValueFactory<>("total"));
         TableColumn<OrderDetailTM, Button> lastCol = (TableColumn<OrderDetailTM, Button>) tblOrderDetails.getColumns().get(5);
+
         lastCol.setCellValueFactory(param -> {
             Button btnDelete = new Button("Delete");
             btnDelete.setOnAction(event -> {
@@ -167,7 +166,17 @@ public class PlaceOrderFormController {
         int qty = Integer.parseInt(txtQty.getText());
         BigDecimal total = unitPrice.multiply(new BigDecimal(qty)).setScale(2);
 
-        tblOrderDetails.getItems().add(new OrderDetailTM(itemCode, description, qty, unitPrice, total));
+        boolean exists = tblOrderDetails.getItems().stream().anyMatch(detail -> detail.getCode().equals(itemCode));
+
+        if (exists) {
+            OrderDetailTM orderDetailTM = tblOrderDetails.getItems().stream().filter(detail -> detail.getCode().equals(itemCode)).findFirst().get();
+            orderDetailTM.setQty(orderDetailTM.getQty() + qty);
+            total = new BigDecimal(orderDetailTM.getQty()).multiply(unitPrice).setScale(2);
+            orderDetailTM.setTotal(total);
+        } else {
+            tblOrderDetails.getItems().add(new OrderDetailTM(itemCode, description, qty, unitPrice, total));
+        }
+
         cmbItemCode.getSelectionModel().clearSelection();
         cmbItemCode.requestFocus();
     }
