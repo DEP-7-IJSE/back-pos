@@ -11,8 +11,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CustomerServiceTest {
@@ -51,6 +50,29 @@ class CustomerServiceTest {
         assertEquals(rst.getString("name"), "Sachintha");
         assertEquals(rst.getString("address"), "Matara");
         assertThrows(NotFoundException.class, () -> customerService.updateCustomer(new CustomerDTO("C100", "Gayal", "Jaffna")));
+    }
+
+    @Test
+    void deleteCustomer() throws NotFoundException, FailedOperationException, SQLException {
+        customerService.deleteCustomer("C001");
+        assertFalse(SingleConnectionDataSource.getInstance().getConnection().prepareStatement("SELECT * FROM customer WHERE id='" + "C001'").executeQuery().next());
+        assertThrows(NotFoundException.class, () -> customerService.deleteCustomer("C100"));
+    }
+
+    @Test
+    void findCustomer() throws FailedOperationException, NotFoundException {
+        CustomerDTO c001 = customerService.findCustomer("C001");
+        assertNotNull(c001);
+        assertEquals(c001.getId(), "C001");
+        assertEquals(c001.getName(), "Pethum");
+        assertEquals(c001.getAddress(), "Galle");
+        assertThrows(NotFoundException.class, () -> customerService.findCustomer("C100"));
+    }
+
+    @Test
+    void findAllCustomer() throws FailedOperationException, DuplicateIdentifierException, SQLException {
+        saveCustomer();
+        assertEquals(customerService.findAllCustomers().size(), 2);
     }
 
     /*@Order(1)
