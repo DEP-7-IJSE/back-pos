@@ -55,14 +55,14 @@ class ItemServiceTest {
     }
 
     @Test
-    void deleteCustomer() throws NotFoundException, FailedOperationException, SQLException {
+    void deleteItem() throws NotFoundException, FailedOperationException, SQLException {
         itemService.deleteItem("I001");
         assertFalse(SingleConnectionDataSource.getInstance().getConnection().prepareStatement("SELECT * FROM item WHERE code='C001';").executeQuery().next());
         assertThrows(NotFoundException.class, () -> itemService.deleteItem("I100"));
     }
 
     @Test
-    void findCustomer() throws FailedOperationException, NotFoundException {
+    void findItem() throws FailedOperationException, NotFoundException {
         ItemDTO c001 = itemService.findItem("I001");
         assertNotNull(c001);
         assertEquals(c001.getCode(), "I001");
@@ -73,15 +73,15 @@ class ItemServiceTest {
     }
 
     @Test
-    void findAllCustomers() throws FailedOperationException, DuplicateIdentifierException, SQLException {
+    void findAllItems() throws FailedOperationException, DuplicateIdentifierException, SQLException {
         saveItem();
         assertEquals(itemService.findAllItems().size(), 2);
     }
 
     /*@Order(1)
     @Test
-    void existCustomer() throws SQLException {
-        assertTrue(customerService.existCustomer("C001"));
-        assertFalse(customerService.existCustomer("C002"));
+    void existItem() throws SQLException {
+        assertTrue(itemService.existItem("C001"));
+        assertFalse(itemService.existItem("C002"));
     }*/
 }
