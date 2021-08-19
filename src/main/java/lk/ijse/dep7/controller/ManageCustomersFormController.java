@@ -15,7 +15,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
+import lk.ijse.dep7.dto.CustomerDTO;
+import lk.ijse.dep7.exception.DuplicateIdentifierException;
 import lk.ijse.dep7.exception.FailedOperationException;
+import lk.ijse.dep7.exception.NotFoundException;
 import lk.ijse.dep7.service.CustomerService;
 import lk.ijse.dep7.util.CustomerTM;
 
@@ -104,23 +107,42 @@ public class ManageCustomersFormController {
             txtCustomerAddress.requestFocus();
             return;
         }
-        if (btnSave.getText().equalsIgnoreCase("save")) {
-            //Todo: save this in our DB first
-            tblCustomers.getItems().add(new CustomerTM(id, name, address));
-        } else {
-            //Todo: first of all we need to update DB
-            CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
-            selectedCustomer.setName(name);
-            selectedCustomer.setAddress(address);
-            tblCustomers.refresh();
+        try {
+            if (btnSave.getText().equalsIgnoreCase("save")) {
+                try {
+                    customerService.saveCustomer(new CustomerDTO(id, name, address));
+                } catch (DuplicateIdentifierException e) {
+                    new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+                }
+                tblCustomers.getItems().add(new CustomerTM(id, name, address));
+            } else {
+                try {
+                    customerService.updateCustomer(new CustomerDTO(id, name, address));
+                    CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
+                    selectedCustomer.setName(name);
+                    selectedCustomer.setAddress(address);
+                    tblCustomers.refresh();
+                } catch (NotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
         }
         btnAddNewCustomer.fire();
     }
 
-    public void btnDelete_OnAction(ActionEvent actionEvent) {
-        tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
-        tblCustomers.getSelectionModel().clearSelection();
-        initUI();
+    public void btnDelete_OnAction(ActionEvent actionEvent) throws NotFoundException, FailedOperationException {
+        try {
+            customerService.deleteCustomer(tblCustomers.getSelectionModel().getSelectedItem().getId());
+            tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
+            tblCustomers.getSelectionModel().clearSelection();
+            initUI();
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        }
     }
 
     private String generateNewId() {
