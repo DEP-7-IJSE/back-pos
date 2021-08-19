@@ -38,6 +38,8 @@ public class ManageCustomersFormController {
 
         tblCustomers.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             btnDelete.setDisable(newValue == null);
+            btnSave.setText(newValue != null ? "Update" : "Save");
+            btnSave.setDisable(newValue == null);
 
             if (newValue != null) {
                 txtCustomerId.setText(newValue.getId());
@@ -47,8 +49,14 @@ public class ManageCustomersFormController {
                 txtCustomerId.setDisable(false);
                 txtCustomerName.setDisable(false);
                 txtCustomerAddress.setDisable(false);
+
+                btnSave.setText("Update");
+            } else {
+                btnSave.setText("Save");
             }
         });
+
+        txtCustomerAddress.setOnAction(event -> btnSave.fire());
     }
 
     @FXML
@@ -73,7 +81,7 @@ public class ManageCustomersFormController {
         txtCustomerAddress.clear();
         txtCustomerName.requestFocus();
         btnSave.setDisable(false);
-
+        btnSave.setText("Save");
         tblCustomers.getSelectionModel().clearSelection();
     }
 
