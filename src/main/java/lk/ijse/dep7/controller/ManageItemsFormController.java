@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +35,32 @@ public class ManageItemsFormController {
         tblItems.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("description"));
         tblItems.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("qtyOnHand"));
         tblItems.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
+
+        initUI();
+
+        tblItems.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            btnDelete.setDisable(newValue == null);
+            btnSave.setText(newValue != null ? "Update" : "Save");
+            btnSave.setDisable(newValue == null);
+
+            if (newValue != null) {
+                txtCode.setText(newValue.getCode());
+                txtDescription.setText(newValue.getDescription());
+                txtQtyOnHand.setText(String.valueOf(newValue.getQtyOnHand()));
+                txtUnitPrice.setText(newValue.getUnitPrice().toString());
+
+                txtCode.setDisable(false);
+                txtDescription.setDisable(false);
+                txtUnitPrice.setDisable(false);
+                txtQtyOnHand.setDisable(false);
+
+                btnSave.setText("Update");
+            } else {
+                btnSave.setText("Save");
+            }
+        });
+
+        txtUnitPrice.setOnAction(event -> btnSave.fire());
     }
 
     @FXML
@@ -48,11 +75,62 @@ public class ManageItemsFormController {
     }
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
+        txtCode.setDisable(false);
+        txtDescription.setDisable(false);
+        txtQtyOnHand.setDisable(false);
+        txtUnitPrice.setDisable(false);
+
+        txtCode.clear();
+        txtCode.setText(generateNewId());
+        txtDescription.clear();
+        txtQtyOnHand.clear();
+        txtUnitPrice.clear();
+        txtDescription.requestFocus();
+        btnSave.setDisable(false);
+        btnSave.setText("Save");
+        tblItems.getSelectionModel().clearSelection();
+    }
+
+    private String generateNewId() {
+        return null;
     }
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
     }
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
+        String code = txtCode.getText();
+        String description = txtDescription.getText();
+        String unitPrice = txtUnitPrice.getText();
+        String qtyOnHand = txtQtyOnHand.getText();
+
+        if (!description.matches("[A-Za-z ]+")) {
+            new Alert(Alert.AlertType.ERROR, "Invalid description").show();
+            txtDescription.requestFocus();
+            return;
+        } else if (!unitPrice.matches("\\d.?\\d")) {
+            new Alert(Alert.AlertType.ERROR, "Invalid price").show();
+            txtUnitPrice.requestFocus();
+            return;
+        } else if (!qtyOnHand.matches("\\d")) {
+            new Alert(Alert.AlertType.ERROR, "Invalid price").show();
+            txtUnitPrice.requestFocus();
+            return;
+        }
+    }
+
+    private void initUI() {
+        txtCode.clear();
+        txtDescription.clear();
+        txtQtyOnHand.clear();
+        txtUnitPrice.clear();
+
+        txtCode.setDisable(true);
+        txtDescription.setDisable(true);
+        txtQtyOnHand.setDisable(true);
+        txtUnitPrice.setDisable(true);
+        txtCode.setEditable(false);
+        btnSave.setDisable(true);
+        btnDelete.setDisable(true);
     }
 }

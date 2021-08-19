@@ -1,18 +1,18 @@
-package lk.ijse.dep7.util;
+package lk.ijse.dep7.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class ItemTM implements Serializable {
+public class ItemDTO implements Serializable {
     private String code;
     private String description;
     private BigDecimal unitPrice;
     private int qtyOnHand;
 
-    public ItemTM() {
+    public ItemDTO() {
     }
 
-    public ItemTM(String code, String description, BigDecimal unitPrice, int qtyOnHand) {
+    public ItemDTO(String code, String description, BigDecimal unitPrice, int qtyOnHand) {
         this.code = code;
         this.description = description;
         this.unitPrice = unitPrice;
