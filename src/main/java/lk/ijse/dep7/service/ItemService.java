@@ -42,7 +42,7 @@ public class ItemService {
         return pstm.executeQuery().next();
     }
 
-    public void updateCustomer(ItemDTO item) throws FailedOperationException, NotFoundException {
+    public void updateItem(ItemDTO item) throws FailedOperationException, NotFoundException {
         try {
             if (!existItem(item.getCode()))
                 throw new NotFoundException("Customer does not exists " + item.getCode());
@@ -51,6 +51,7 @@ public class ItemService {
             pstm.setString(1, item.getDescription());
             pstm.setInt(2, item.getQtyOnHand());
             pstm.setBigDecimal(3, item.getUnitPrice());
+            pstm.setString(4, item.getCode());
             pstm.executeUpdate();
         } catch (SQLException e) {
             throw new FailedOperationException("Failed to update the item", e);
@@ -100,7 +101,7 @@ public class ItemService {
         }
     }
 
-    public String generateNewItemId() throws FailedOperationException {
+    public String generateNewItemCode() throws FailedOperationException {
         try {
             ResultSet rst = connection.createStatement().executeQuery("SELECT code FROM item ORDER BY code DESC LIMIT 1;");
             if (rst.next()) {

@@ -14,9 +14,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
+import lk.ijse.dep7.dto.ItemDTO;
+import lk.ijse.dep7.exception.DuplicateIdentifierException;
+import lk.ijse.dep7.exception.FailedOperationException;
+import lk.ijse.dep7.exception.NotFoundException;
+import lk.ijse.dep7.service.ItemService;
 import lk.ijse.dep7.util.ItemTM;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 
 public class ManageItemsFormController {
@@ -27,10 +34,12 @@ public class ManageItemsFormController {
     public JFXTextField txtQtyOnHand;
     public JFXButton btnDelete;
     public JFXButton btnSave;
+    private final ItemService itemService = new ItemService(SingleConnectionDataSource.getInstance().getConnection());
     public TableView<ItemTM> tblItems;
     public JFXTextField txtUnitPrice;
+    public JFXButton btnAddNewItem;
 
-    public void initialize() {
+    public void initialize() throws FailedOperationException {
         tblItems.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
         tblItems.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("description"));
         tblItems.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("qtyOnHand"));
@@ -61,6 +70,7 @@ public class ManageItemsFormController {
         });
 
         txtUnitPrice.setOnAction(event -> btnSave.fire());
+        loadAllItems();
     }
 
     @FXML
@@ -74,7 +84,7 @@ public class ManageItemsFormController {
         Platform.runLater(primaryStage::sizeToScene);
     }
 
-    public void btnAddNew_OnAction(ActionEvent actionEvent) {
+    public void btnAddNew_OnAction(ActionEvent actionEvent) throws FailedOperationException {
         txtCode.setDisable(false);
         txtDescription.setDisable(false);
         txtQtyOnHand.setDisable(false);
@@ -91,14 +101,30 @@ public class ManageItemsFormController {
         tblItems.getSelectionModel().clearSelection();
     }
 
-    private String generateNewId() {
-        return null;
+    private String generateNewId() throws FailedOperationException {
+        try {
+            return itemService.generateNewItemCode();
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        }
     }
 
-    public void btnDelete_OnAction(ActionEvent actionEvent) {
+    public void btnDelete_OnAction(ActionEvent actionEvent) throws FailedOperationException {
+        try {
+            itemService.deleteItem(tblItems.getSelectionModel().getSelectedItem().getCode());
+            tblItems.getItems().remove(tblItems.getSelectionModel().getSelectedItem());
+            tblItems.getSelectionModel().clearSelection();
+            initUI();
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        } catch (NotFoundException e) {
+            e.printStackTrace();  // This is never going to happen with our UI design
+        }
     }
 
-    public void btnSave_OnAction(ActionEvent actionEvent) {
+    public void btnSave_OnAction(ActionEvent actionEvent) throws FailedOperationException {
         String code = txtCode.getText();
         String description = txtDescription.getText();
         String unitPrice = txtUnitPrice.getText();
@@ -108,14 +134,50 @@ public class ManageItemsFormController {
             new Alert(Alert.AlertType.ERROR, "Invalid description").show();
             txtDescription.requestFocus();
             return;
-        } else if (!unitPrice.matches("\\d.?\\d")) {
+        } else if (!unitPrice.matches("\\d*.?\\d+")) {
             new Alert(Alert.AlertType.ERROR, "Invalid price").show();
             txtUnitPrice.requestFocus();
             return;
-        } else if (!qtyOnHand.matches("\\d")) {
-            new Alert(Alert.AlertType.ERROR, "Invalid price").show();
+        } else if (!qtyOnHand.matches("\\d+")) {
+            new Alert(Alert.AlertType.ERROR, "Invalid qty").show();
             txtUnitPrice.requestFocus();
             return;
+        }
+
+        try {
+            if (btnSave.getText().equalsIgnoreCase("save")) {
+                try {
+                    itemService.saveItem(new ItemDTO(code, description, new BigDecimal(unitPrice), Integer.parseInt(qtyOnHand)));
+                } catch (DuplicateIdentifierException e) {
+                    new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+                }
+                tblItems.getItems().add(new ItemTM(code, description, new BigDecimal(unitPrice), Integer.parseInt(qtyOnHand)));
+            } else {
+                try {
+                    itemService.updateItem(new ItemDTO(code, description, new BigDecimal(unitPrice), Integer.parseInt(qtyOnHand)));
+                    ItemTM selectedItem = tblItems.getSelectionModel().getSelectedItem();
+                    selectedItem.setDescription(description);
+                    selectedItem.setQtyOnHand(Integer.parseInt(qtyOnHand));
+                    selectedItem.setUnitPrice(new BigDecimal(unitPrice));
+                    tblItems.refresh();
+                } catch (NotFoundException e) {
+                    e.printStackTrace(); // This is never going to happen with our UI design
+                }
+            }
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        }
+        btnAddNewItem.fire();
+    }
+
+    private void loadAllItems() throws FailedOperationException {
+        tblItems.getItems().clear();
+        try {
+            itemService.findAllItems().forEach(dto -> tblItems.getItems().add(new ItemTM(dto.getCode(), dto.getDescription(), dto.getUnitPrice(), dto.getQtyOnHand())));
+        } catch (FailedOperationException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
         }
     }
 
