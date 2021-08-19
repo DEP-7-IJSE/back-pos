@@ -99,9 +99,16 @@ public class ManageCustomersFormController {
             txtCustomerAddress.requestFocus();
             return;
         }
-
-        //Todo: save this in our DB first
-        tblCustomers.getItems().add(new CustomerTM(id, name, address));
+        if (btnSave.getText().equalsIgnoreCase("save")) {
+            //Todo: save this in our DB first
+            tblCustomers.getItems().add(new CustomerTM(id, name, address));
+        } else {
+            //Todo: first of all we need to update DB
+            CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
+            selectedCustomer.setName(name);
+            selectedCustomer.setAddress(address);
+            tblCustomers.refresh();
+        }
         btnAddNewCustomer.fire();
     }
 
