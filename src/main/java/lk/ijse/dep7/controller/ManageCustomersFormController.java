@@ -24,6 +24,9 @@ import lk.ijse.dep7.util.CustomerTM;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ManageCustomersFormController {
     public AnchorPane root;
@@ -123,7 +126,7 @@ public class ManageCustomersFormController {
                     selectedCustomer.setAddress(address);
                     tblCustomers.refresh();
                 } catch (NotFoundException e) {
-                    e.printStackTrace();
+                    e.printStackTrace(); // This is never going to happen with our UI design
                 }
             }
         } catch (FailedOperationException e) {
@@ -133,7 +136,7 @@ public class ManageCustomersFormController {
         btnAddNewCustomer.fire();
     }
 
-    public void btnDelete_OnAction(ActionEvent actionEvent) throws NotFoundException, FailedOperationException {
+    public void btnDelete_OnAction(ActionEvent actionEvent) throws FailedOperationException {
         try {
             customerService.deleteCustomer(tblCustomers.getSelectionModel().getSelectedItem().getId());
             tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
@@ -142,6 +145,8 @@ public class ManageCustomersFormController {
         } catch (FailedOperationException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
             throw e;
+        } catch (NotFoundException e) {
+            e.printStackTrace();  // This is never going to happen with our UI design
         }
     }
 
@@ -149,10 +154,16 @@ public class ManageCustomersFormController {
         if (tblCustomers.getItems().isEmpty()) {
             return "C001";
         } else {
-            String id = tblCustomers.getItems().get(tblCustomers.getItems().size() - 1).getId();
+            String id = getLastCustomerId();
             int newCustomerId = Integer.parseInt(id.replace("C", "")) + 1;
             return String.format("C%03d", newCustomerId);
         }
+    }
+
+    private String getLastCustomerId() {
+        List<CustomerTM> tempCustomersList = new ArrayList<>(tblCustomers.getItems());
+        Collections.sort(tempCustomersList);
+        return tempCustomersList.get(tempCustomersList.size() - 1).getId();
     }
 
     private void loadAllCustomers() throws FailedOperationException {

@@ -2,7 +2,7 @@ package lk.ijse.dep7.util;
 
 import java.io.Serializable;
 
-public class CustomerTM implements Serializable {
+public class CustomerTM implements Serializable, Comparable<CustomerTM> {
     private String id;
     private String name;
     private String address;
@@ -47,5 +47,10 @@ public class CustomerTM implements Serializable {
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(CustomerTM o) {
+        return id.compareTo(o.getId());
     }
 }
