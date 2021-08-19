@@ -13,6 +13,10 @@ import java.util.List;
 public class CustomerService {
     private Connection connection = SingleConnectionDataSource.getInstance().getConnection();
 
+    public CustomerService(Connection connection) {
+        this.connection = connection;
+    }
+
     public void saveCustomer(CustomerDTO customer) throws DuplicateIdentifierException, FailedOperationException {
         try {
             if (existCustomer(customer.getId()))
@@ -28,7 +32,7 @@ public class CustomerService {
         }
     }
 
-    private boolean existCustomer(String id) throws SQLException {
+    public boolean existCustomer(String id) throws SQLException {
         PreparedStatement pstm = connection.prepareStatement("SELECT id FROM customer WHERE id=?;");
         pstm.setString(1, id);
         return pstm.executeQuery().next();
