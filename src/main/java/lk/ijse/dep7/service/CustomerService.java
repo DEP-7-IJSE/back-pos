@@ -4,6 +4,7 @@ import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
 import lk.ijse.dep7.dto.CustomerDTO;
 import lk.ijse.dep7.exception.DuplicateIdentifierException;
 import lk.ijse.dep7.exception.FailedOperationException;
+import lk.ijse.dep7.exception.NotFoundException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +13,9 @@ import java.util.List;
 
 public class CustomerService {
     private Connection connection = SingleConnectionDataSource.getInstance().getConnection();
+
+    public CustomerService() {
+    }
 
     public CustomerService(Connection connection) {
         this.connection = connection;
@@ -32,14 +36,24 @@ public class CustomerService {
         }
     }
 
-    public boolean existCustomer(String id) throws SQLException {
+    private boolean existCustomer(String id) throws SQLException {
         PreparedStatement pstm = connection.prepareStatement("SELECT id FROM customer WHERE id=?;");
         pstm.setString(1, id);
         return pstm.executeQuery().next();
     }
 
-    public void updateCustomer(CustomerDTO customer) {
+    public void updateCustomer(CustomerDTO customer) throws FailedOperationException, NotFoundException {
+        try {
+            if (!existCustomer(customer.getId())) throw new NotFoundException("Customer does not exists");
 
+            PreparedStatement pstm = connection.prepareStatement("UPDATE customer SET name=?, address=? WHERE id=?;");
+            pstm.setString(1, customer.getName());
+            pstm.setString(2, customer.getAddress());
+            pstm.setString(3, customer.getId());
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            throw new FailedOperationException("Failed to update the customer", e);
+        }
     }
 
     public void deleteCustomer(String id) {

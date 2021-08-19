@@ -4,12 +4,15 @@ import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
 import lk.ijse.dep7.dto.CustomerDTO;
 import lk.ijse.dep7.exception.DuplicateIdentifierException;
 import lk.ijse.dep7.exception.FailedOperationException;
+import lk.ijse.dep7.exception.NotFoundException;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CustomerServiceTest {
@@ -36,14 +39,24 @@ class CustomerServiceTest {
     @Test
     void saveCustomer() throws FailedOperationException, DuplicateIdentifierException, SQLException {
         customerService.saveCustomer(new CustomerDTO("C002", "Dinusha", "Moratuwa"));
-        assertTrue(customerService.existCustomer("C002"));
-        assertThrows(DuplicateIdentifierException.class, () -> customerService.saveCustomer(new CustomerDTO("C002", "Dinusha", "Moratuwa")));
+        //assertTrue(customerService.existCustomer("C002"));
+        assertThrows(DuplicateIdentifierException.class, () -> customerService.saveCustomer(new CustomerDTO("C001", "Dinusha", "Moratuwa")));
     }
 
-    @Order(1)
+    @Test
+    void updateCustomer() throws FailedOperationException, NotFoundException, SQLException {
+        customerService.updateCustomer(new CustomerDTO("C001", "Sachintha", "Matara"));
+        ResultSet rst = SingleConnectionDataSource.getInstance().getConnection().createStatement().executeQuery("SELECT * FROM customer WHERE id='C001';");
+        rst.next();
+        assertEquals(rst.getString("name"), "Sachintha");
+        assertEquals(rst.getString("address"), "Matara");
+        assertThrows(NotFoundException.class, () -> customerService.updateCustomer(new CustomerDTO("C100", "Gayal", "Jaffna")));
+    }
+
+    /*@Order(1)
     @Test
     void existCustomer() throws SQLException {
         assertTrue(customerService.existCustomer("C001"));
         assertFalse(customerService.existCustomer("C002"));
-    }
+    }*/
 }
