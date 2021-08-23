@@ -62,6 +62,7 @@ public class PlaceOrderFormController {
                 tblOrderDetails.getItems().remove(param.getValue());
                 tblOrderDetails.getSelectionModel().clearSelection();
                 calculateTotal();
+                enableOrDisablePlaceOrderButton();
             });
 
             return new ReadOnlyObjectWrapper<>(btnDelete);
@@ -84,6 +85,8 @@ public class PlaceOrderFormController {
         btnSave.setDisable(true);
 
         cmbCustomerId.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            enableOrDisablePlaceOrderButton();
+
             if (newValue != null) {
                 try {
                     txtCustomerName.setText(customerService.findCustomer(newValue).getName());
@@ -109,6 +112,7 @@ public class PlaceOrderFormController {
                     //txtQtyOnHand.setText(tblOrderDetails.getItems().stream().filter(detail-> detail.getCode().equals(item.getCode())).<Integer>map(detail-> item.getQtyOnHand() - detail.getQty()).findFirst().orElse(item.getQtyOnHand()) + "");
                     Optional<OrderDetailTM> optOrderDetail = tblOrderDetails.getItems().stream().filter(detail -> detail.getCode().equals(newValue)).findFirst();
                     txtQtyOnHand.setText(String.valueOf(optOrderDetail.map(detailTM -> item.getQtyOnHand() - detailTM.getQty()).orElseGet(item::getQtyOnHand)));
+                    enableOrDisablePlaceOrderButton();
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 } catch (FailedOperationException e) {
@@ -210,11 +214,22 @@ public class PlaceOrderFormController {
         cmbItemCode.getSelectionModel().clearSelection();
         cmbItemCode.requestFocus();
         calculateTotal();
+        enableOrDisablePlaceOrderButton();
     }
 
     private void calculateTotal() {
         lblTotal.setText("Total: " + tblOrderDetails.getItems().stream().map(OrderDetailTM::getTotal)
                 .reduce(BigDecimal::add).orElse(new BigDecimal(0)).setScale(2));
+    }
+
+    private void enableOrDisablePlaceOrderButton() {
+        /*        BigDecimal total = new BigDecimal(0);
+
+        for (OrderDetailTM detail : tblOrderDetails.getItems()) {
+            total = total.add(detail.getTotal());
+        }*/
+
+        btnPlaceOrder.setDisable(!(cmbCustomerId.getSelectionModel().getSelectedItem() != null && !tblOrderDetails.getItems().isEmpty()));
     }
 
     public void txtQty_OnAction(ActionEvent actionEvent) {
