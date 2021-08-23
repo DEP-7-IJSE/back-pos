@@ -17,10 +17,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
 import lk.ijse.dep7.dto.ItemDTO;
+import lk.ijse.dep7.dto.OrderDetailDTO;
+import lk.ijse.dep7.exception.DuplicateIdentifierException;
 import lk.ijse.dep7.exception.FailedOperationException;
 import lk.ijse.dep7.exception.NotFoundException;
 import lk.ijse.dep7.service.CustomerService;
 import lk.ijse.dep7.service.ItemService;
+import lk.ijse.dep7.service.OrderService;
 import lk.ijse.dep7.util.OrderDetailTM;
 
 import java.io.IOException;
@@ -28,6 +31,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PlaceOrderFormController {
 
@@ -47,6 +51,9 @@ public class PlaceOrderFormController {
     public Label lblDate;
     public Label lblTotal;
     public JFXComboBox<String> cmbItemCode;
+
+    private final OrderService orderService = new OrderService(SingleConnectionDataSource.getInstance().getConnection());
+    private String orderId;
 
     public void initialize() throws FailedOperationException {
         tblOrderDetails.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
@@ -70,6 +77,7 @@ public class PlaceOrderFormController {
 
         //Todo: we need to generate and set new order id
 
+        orderId = "OD001";
         lblDate.setText(LocalDate.now().toString());
         btnPlaceOrder.setDisable(true);
         txtCustomerName.setEditable(false);
@@ -234,6 +242,15 @@ public class PlaceOrderFormController {
     public void txtQty_OnAction(ActionEvent actionEvent) {
     }
 
-    public void btnPlaceOrder_OnAction(ActionEvent actionEvent) {
+    public void btnPlaceOrder_OnAction(ActionEvent actionEvent) throws FailedOperationException, DuplicateIdentifierException, NotFoundException {
+        try {
+            orderService.saveOrder(orderId, LocalDate.now(), cmbCustomerId.getValue(),
+                    tblOrderDetails.getItems().stream().map(tm -> new OrderDetailDTO(tm.getCode(), tm.getQty(), tm.getUnitPrice())).collect(Collectors.toList()));
+            new Alert(Alert.AlertType.INFORMATION, "Order has been placed successfully").show();
+            //Todo: clear, generate now order id
+        } catch (FailedOperationException | NotFoundException | DuplicateIdentifierException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        }
     }
 }
