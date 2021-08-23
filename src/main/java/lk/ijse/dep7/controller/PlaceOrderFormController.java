@@ -112,7 +112,6 @@ public class PlaceOrderFormController {
                     //txtQtyOnHand.setText(tblOrderDetails.getItems().stream().filter(detail-> detail.getCode().equals(item.getCode())).<Integer>map(detail-> item.getQtyOnHand() - detail.getQty()).findFirst().orElse(item.getQtyOnHand()) + "");
                     Optional<OrderDetailTM> optOrderDetail = tblOrderDetails.getItems().stream().filter(detail -> detail.getCode().equals(newValue)).findFirst();
                     txtQtyOnHand.setText(String.valueOf(optOrderDetail.map(detailTM -> item.getQtyOnHand() - detailTM.getQty()).orElseGet(item::getQtyOnHand)));
-                    enableOrDisablePlaceOrderButton();
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 } catch (FailedOperationException e) {
