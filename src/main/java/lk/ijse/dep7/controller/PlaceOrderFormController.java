@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class PlaceOrderFormController {
 
@@ -102,7 +103,9 @@ public class PlaceOrderFormController {
                     ItemDTO item = itemService.findItem(newValue);
                     txtDescription.setText(item.getDescription());
                     txtUnitPrice.setText(item.getUnitPrice().setScale(2).toString());
-                    txtQtyOnHand.setText(String.valueOf(item.getQtyOnHand()));
+
+                    Optional<OrderDetailTM> optOrderDetail = tblOrderDetails.getItems().stream().filter(detail -> detail.getCode().equals(newValue)).findFirst();
+                    txtQtyOnHand.setText(String.valueOf(optOrderDetail.isPresent() ? item.getQtyOnHand() - optOrderDetail.get().getQty() : item.getQtyOnHand()));
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 } catch (FailedOperationException e) {
@@ -173,6 +176,7 @@ public class PlaceOrderFormController {
             orderDetailTM.setQty(orderDetailTM.getQty() + qty);
             total = new BigDecimal(orderDetailTM.getQty()).multiply(unitPrice).setScale(2);
             orderDetailTM.setTotal(total);
+            tblOrderDetails.refresh();
         } else {
             tblOrderDetails.getItems().add(new OrderDetailTM(itemCode, description, qty, unitPrice, total));
         }
