@@ -213,13 +213,8 @@ public class PlaceOrderFormController {
     }
 
     private void calculateTotal() {
-        BigDecimal total = new BigDecimal(0);
-
-        for (OrderDetailTM order : tblOrderDetails.getItems()) {
-            total = total.add(order.getTotal());
-        }
-
-        lblTotal.setText("Total: " + total.setScale(2));
+        lblTotal.setText("Total: " + tblOrderDetails.getItems().stream().map(OrderDetailTM::getTotal)
+                .reduce(BigDecimal::add).orElse(new BigDecimal(0)).setScale(2));
     }
 
     public void txtQty_OnAction(ActionEvent actionEvent) {
