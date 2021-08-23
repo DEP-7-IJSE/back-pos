@@ -23,8 +23,8 @@ CREATE TABLE `order`
 
 CREATE TABLE order_detail
 (
-    item_code  VARCHAR(10) NOT NULL,
     order_id   VARCHAR(10) NOT NULL,
+    item_code  VARCHAR(10) NOT NULL,
     unit_price DECIMAL     NOT NULL,
     qty        INT         NOT NULL,
     CONSTRAINT PRIMARY KEY (order_id, item_code),
