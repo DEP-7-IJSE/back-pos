@@ -60,6 +60,7 @@ public class PlaceOrderFormController {
             Button btnDelete = new Button("Delete");
             btnDelete.setOnAction(event -> {
                 tblOrderDetails.getItems().remove(param.getValue());
+                tblOrderDetails.getSelectionModel().clearSelection();
             });
 
             return new ReadOnlyObjectWrapper<>(btnDelete);
@@ -128,6 +129,11 @@ public class PlaceOrderFormController {
                 btnSave.setText("Update");
                 txtQtyOnHand.setText((Integer.parseInt(txtQtyOnHand.getText()) + selectedOderDetail.getQty()) + "");
                 txtQty.setText(selectedOderDetail.getQty() + "");
+            } else {
+                btnSave.setText("Add");
+                cmbItemCode.setDisable(false);
+                cmbItemCode.getSelectionModel().clearSelection();
+                txtQty.clear();
             }
         });
 
