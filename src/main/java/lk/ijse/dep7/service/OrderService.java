@@ -6,10 +6,7 @@ import lk.ijse.dep7.exception.DuplicateIdentifierException;
 import lk.ijse.dep7.exception.FailedOperationException;
 import lk.ijse.dep7.exception.NotFoundException;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -80,6 +77,21 @@ public class OrderService {
             } catch (SQLException e) {
                 throw new FailedOperationException("Failed to reset the transaction", e);
             }
+        }
+    }
+
+    public String generateNewOrderId() throws FailedOperationException {
+        try {
+            ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM `order` ORDER BY id DESC LIMIT 1;");
+            if (rst.next()) {
+                String id = rst.getString("id");
+                int newOrderId = Integer.parseInt(id.replace("OD", "")) + 1;
+                return String.format("OD%03d", newOrderId);
+            } else {
+                return "OD001";
+            }
+        } catch (SQLException e) {
+            throw new FailedOperationException("Failed to generate new id", e);
         }
     }
 }

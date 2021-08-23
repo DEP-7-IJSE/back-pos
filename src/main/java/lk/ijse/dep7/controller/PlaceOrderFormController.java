@@ -77,7 +77,7 @@ public class PlaceOrderFormController {
 
         //Todo: we need to generate and set new order id
 
-        orderId = "OD001";
+        lblId.setText(generateNewId());
         lblDate.setText(LocalDate.now().toString());
         btnPlaceOrder.setDisable(true);
         txtCustomerName.setEditable(false);
@@ -104,6 +104,8 @@ public class PlaceOrderFormController {
                     new Alert(Alert.AlertType.ERROR, "Failed to load customer information").show();
                     throw new RuntimeException(e);
                 }
+            } else {
+                txtCustomerName.clear();
             }
         });
 
@@ -225,7 +227,7 @@ public class PlaceOrderFormController {
     }
 
     private void calculateTotal() {
-        lblTotal.setText("Total: " + tblOrderDetails.getItems().stream().map(OrderDetailTM::getTotal)
+        lblTotal.setText("TOTAL : " + tblOrderDetails.getItems().stream().map(OrderDetailTM::getTotal)
                 .reduce(BigDecimal::add).orElse(new BigDecimal(0)).setScale(2));
     }
 
@@ -244,11 +246,24 @@ public class PlaceOrderFormController {
 
     public void btnPlaceOrder_OnAction(ActionEvent actionEvent) throws FailedOperationException, DuplicateIdentifierException, NotFoundException {
         try {
-            orderService.saveOrder(orderId, LocalDate.now(), cmbCustomerId.getValue(),
+            orderService.saveOrder(lblId.getText(), LocalDate.now(), cmbCustomerId.getValue(),
                     tblOrderDetails.getItems().stream().map(tm -> new OrderDetailDTO(tm.getCode(), tm.getQty(), tm.getUnitPrice())).collect(Collectors.toList()));
             new Alert(Alert.AlertType.INFORMATION, "Order has been placed successfully").show();
-            //Todo: clear, generate now order id
+            cmbCustomerId.getSelectionModel().clearSelection();
+            cmbItemCode.getSelectionModel().clearSelection();
+            tblOrderDetails.getItems().clear();
+            lblTotal.setText("TOTAL :");
+            lblId.setText(generateNewId());
         } catch (FailedOperationException | NotFoundException | DuplicateIdentifierException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
+            throw e;
+        }
+    }
+
+    private String generateNewId() throws FailedOperationException {
+        try {
+            return orderService.generateNewOrderId();
+        } catch (FailedOperationException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
             throw e;
         }
