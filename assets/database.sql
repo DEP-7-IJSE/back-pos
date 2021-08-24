@@ -44,8 +44,13 @@ FROM `order` o
          INNER JOIN
      (SELECT order_id, SUM(qty * unit_price) AS total FROM order_detail od GROUP BY order_id) AS order_total
      ON o.id = order_total.order_id
-WHERE order_id LIKE '%OD001%'
-   OR date LIKE '%2021-08-%'
-   OR customer_id LIKE '%C001%'
-   OR name LIKE '%Pethum%';
+WHERE (order_id LIKE '%OD001%'
+    OR date LIKE '%2021-08-%'
+    OR customer_id LIKE '%C001%'
+    OR name LIKE '%Pethum%')
+  AND (order_id LIKE '%OD001%'
+    OR date LIKE '%2021-08-%'
+    OR customer_id LIKE '%C001%'
+    OR name LIKE '%Pethum%')
+ORDER BY id;
 

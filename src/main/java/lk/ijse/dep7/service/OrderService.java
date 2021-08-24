@@ -78,17 +78,36 @@ public class OrderService {
         ArrayList<OrderDTO> orderList = new ArrayList<>();
 
         try {
-            PreparedStatement stm = connection.prepareStatement("SELECT o.*, c.name, order_total.total\n" +
+            String[] searchWords = query.split("\\s");
+            StringBuilder sql = new StringBuilder("SELECT o.*, c.name, order_total.total\n" +
                     "FROM `order` o\n" +
                     "         INNER JOIN customer c on o.customer_id = c.id\n" +
                     "         INNER JOIN\n" +
                     "     (SELECT order_id, SUM(qty * unit_price) AS total FROM order_detail od GROUP BY order_id) AS order_total\n" +
-                    "     ON o.id = order_total.order_id WHERE order_id LIKE ? OR date LIKE ? OR customer_id LIKE ? OR name LIKE ?;");
-            stm.setString(1, "%" + query + "%");
-            stm.setString(2, "%" + query + "%");
-            stm.setString(3, "%" + query + "%");
-            stm.setString(4, "%" + query + "%");
+                    "     ON o.id = order_total.order_id\n" +
+                    "WHERE (order_id LIKE ?\n" +
+                    "   OR date LIKE ?\n" +
+                    "   OR customer_id LIKE ?\n" +
+                    "   OR name LIKE ?) ");
+
+            for (int i = 1; i < searchWords.length; i++) {
+                sql.append("AND (order_id LIKE ?\n" +
+                        "    OR date LIKE ?\n" +
+                        "    OR customer_id LIKE ?\n" +
+                        "    OR name LIKE ?) ");
+            }
+
+            sql.append("ORDER BY id;");
+
+            PreparedStatement stm = connection.prepareStatement(sql.toString());
+
+            int j = 0;
+            for (int i = 1; i <= searchWords.length * 4; i++) {
+                stm.setString(i, "%" + searchWords[j] + "%");
+                if (i % 4 == 0) j++;
+            }
             ResultSet rst = stm.executeQuery();
+
             while (rst.next()) {
                 orderList.add(new OrderDTO(
                         rst.getString("id"),
@@ -98,6 +117,7 @@ public class OrderService {
                         rst.getBigDecimal("total")
                 ));
             }
+
             return orderList;
         } catch (SQLException e) {
             throw new FailedOperationException("Failed to search Orders");
