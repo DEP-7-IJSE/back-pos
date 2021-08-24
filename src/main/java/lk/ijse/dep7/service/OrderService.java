@@ -66,15 +66,9 @@ public class OrderService {
     public String generateNewOrderId() throws FailedOperationException {
         try {
             ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM `order` ORDER BY id DESC LIMIT 1;");
-            if (rst.next()) {
-                String id = rst.getString("id");
-                int newOrderId = Integer.parseInt(id.replace("OD", "")) + 1;
-                return String.format("OD%03d", newOrderId);
-            } else {
-                return "OD001";
-            }
+            return rst.next() ? String.format("OD%03d", (Integer.parseInt(rst.getString("id").replace("OD", "")) + 1)) : "OD001";
         } catch (SQLException e) {
-            throw new FailedOperationException("Failed to generate new id", e);
+            throw new FailedOperationException("Failed to generate new order id", e);
         }
     }
 
