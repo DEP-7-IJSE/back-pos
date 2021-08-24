@@ -36,6 +36,7 @@ public class SearchOrdersFormController {
         tblOrders.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("customerName"));
         tblOrders.getColumns().get(4).setCellValueFactory(new PropertyValueFactory<>("orderTotal"));
 
+        loadOrders();
         txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             loadOrders();
         });
