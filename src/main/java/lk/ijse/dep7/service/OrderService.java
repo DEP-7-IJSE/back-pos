@@ -103,7 +103,7 @@ public class OrderService {
 
             int j = 0;
             for (int i = 1; i <= searchWords.length * 4; i++) {
-                stm.setString(i, "%" + searchWords[j] + "%");
+                stm.setString(i, "%" + searchWords[(j)] + "%");
                 if (i % 4 == 0) j++;
             }
             ResultSet rst = stm.executeQuery();
@@ -129,6 +129,30 @@ public class OrderService {
             context.execute();
         } catch (SQLException e) {
             throw new FailedOperationException("Failed to save the order", e);
+        }
+    }
+
+    public List<OrderDetailDTO> findOrderDetails(String orderId) throws NotFoundException, FailedOperationException {
+        List<OrderDetailDTO> orderDetailList = new ArrayList<>();
+        try {
+            PreparedStatement stm = connection.prepareStatement("SELECT  id FROM `order` WHERE id=?;");
+            stm.setString(1, orderId);
+            if (!stm.executeQuery().next()) throw new NotFoundException("Invalid order id");
+
+            stm = connection.prepareStatement("SELECT * FROM order_detail WHERE order_id=?;");
+            stm.setString(1, orderId);
+            ResultSet rst = stm.executeQuery();
+            while (rst.next()) {
+                orderDetailList.add(new OrderDetailDTO(
+                        rst.getString("item_code"),
+                        rst.getInt("qty"),
+                        rst.getBigDecimal("unit_price")
+                ));
+            }
+
+            return orderDetailList;
+        } catch (SQLException e) {
+            throw new FailedOperationException("Failed to fetch order details for order id: " + orderId, e);
         }
     }
 

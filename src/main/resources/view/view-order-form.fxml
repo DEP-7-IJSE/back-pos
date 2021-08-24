@@ -40,7 +40,6 @@
             <TableColumn prefWidth="64.0" text="Qty"/>
             <TableColumn prefWidth="99.0" text="Unit Price"/>
             <TableColumn prefWidth="88.0" text="Total"/>
-            <TableColumn prefWidth="99.0" text="Delete"/>
          </columns>
       </TableView>
       <!--      <JFXTextField fx:id="txtQty" onKeyPressed="#txtQty_OnKeyPressed" labelFloat="true" layoutX="370.0" layoutY="226.0" prefHeight="28.0" prefWidth="161.0" promptText="Qty." />-->
@@ -56,8 +55,8 @@
             <Font size="17.0"/>
          </font>
       </Label>
-      <Label fx:id="lblTotal" layoutX="247.0" layoutY="401.0" text="Total : 0.00" AnchorPane.leftAnchor="247.0"
-             AnchorPane.rightAnchor="241.0">
+      <Label fx:id="lblTotal" alignment="CENTER" layoutX="8.0" layoutY="401.0" prefWidth="399.0" text="Total : 0.00"
+             AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0">
          <font>
             <Font size="32.0"/>
          </font>

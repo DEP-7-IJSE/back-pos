@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lk.ijse.dep7.dbUtils.SingleConnectionDataSource;
 import lk.ijse.dep7.dto.OrderDTO;
@@ -69,6 +70,29 @@ public class SearchOrdersFormController {
         Platform.runLater(() -> primaryStage.sizeToScene());
     }
 
-    public void tblOrders_OnMouseClicked(MouseEvent mouseEvent) {
+    public void tblOrders_OnMouseClicked(MouseEvent mouseEvent) throws IOException {
+        OrderTM selectedOrder = tblOrders.getSelectionModel().getSelectedItem();
+
+        if (tblOrders.getSelectionModel().getSelectedItem() == null) return;
+
+        if (mouseEvent.getClickCount() == 2) {
+            Stage stage = new Stage();
+            FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/view/view-order-form.fxml"));
+            stage.setScene(new Scene(fxmlLoader.load()));
+            ViewOrderFormController controller = fxmlLoader.getController();
+
+            controller.initWithData(
+                    selectedOrder.getOrderId(),
+                    selectedOrder.getOrderDate(),
+                    selectedOrder.getCustomerId(),
+                    selectedOrder.getCustomerName(),
+                    selectedOrder.getOrderTotal()
+            );
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initOwner(this.root.getScene().getWindow());
+            stage.show();
+            stage.sizeToScene();
+            stage.centerOnScreen();
+        }
     }
 }
