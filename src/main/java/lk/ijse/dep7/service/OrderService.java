@@ -84,10 +84,10 @@ public class OrderService {
                     "         INNER JOIN\n" +
                     "     (SELECT order_id, SUM(qty * unit_price) AS total FROM order_detail od GROUP BY order_id) AS order_total\n" +
                     "     ON o.id = order_total.order_id WHERE order_id LIKE ? OR date LIKE ? OR customer_id LIKE ? OR name LIKE ?;");
-            stm.setString(1, query);
-            stm.setString(2, query);
-            stm.setString(3, query);
-            stm.setString(4, query);
+            stm.setString(1, "%" + query + "%");
+            stm.setString(2, "%" + query + "%");
+            stm.setString(3, "%" + query + "%");
+            stm.setString(4, "%" + query + "%");
             ResultSet rst = stm.executeQuery();
             while (rst.next()) {
                 orderList.add(new OrderDTO(

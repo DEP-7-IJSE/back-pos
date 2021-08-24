@@ -36,7 +36,7 @@ class OrderServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"OD001", "2021-08-23", "C002", "Dinusha", "Ar"})
     void searchOrders(String source) throws FailedOperationException {
-        orderService.searchOrders("%" + source + "%").forEach(System.out::println);
+        orderService.searchOrders(source).forEach(System.out::println);
         System.out.println("---------------------------------");
     }
 }
