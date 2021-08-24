@@ -53,7 +53,6 @@ public class PlaceOrderFormController {
     public JFXComboBox<String> cmbItemCode;
 
     private final OrderService orderService = new OrderService(SingleConnectionDataSource.getInstance().getConnection());
-    private String orderId;
 
     public void initialize() throws FailedOperationException {
         tblOrderDetails.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
@@ -75,9 +74,7 @@ public class PlaceOrderFormController {
             return new ReadOnlyObjectWrapper<>(btnDelete);
         });
 
-        //Todo: we need to generate and set new order id
-
-        lblId.setText(generateNewId());
+        lblId.setText("ORDER ID : " + generateNewId());
         lblDate.setText(LocalDate.now().toString());
         btnPlaceOrder.setDisable(true);
         txtCustomerName.setEditable(false);
@@ -252,8 +249,8 @@ public class PlaceOrderFormController {
             cmbCustomerId.getSelectionModel().clearSelection();
             cmbItemCode.getSelectionModel().clearSelection();
             tblOrderDetails.getItems().clear();
-            lblTotal.setText("TOTAL :");
-            lblId.setText(generateNewId());
+            lblTotal.setText("TOTAL : ");
+            lblId.setText("ORDER ID : " + generateNewId());
         } catch (FailedOperationException | NotFoundException | DuplicateIdentifierException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
             throw e;

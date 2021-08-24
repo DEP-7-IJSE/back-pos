@@ -31,3 +31,9 @@ CREATE TABLE order_detail
     CONSTRAINT FOREIGN KEY (order_id) REFERENCES `order` (id),
     CONSTRAINT FOREIGN KEY (item_code) REFERENCES item (code)
 );
+
+SELECT o.id, o.date, o.customer_id, c.name, SUM(od.unit_price * od.qty) AS total
+FROM `order` o
+         LEFT OUTER JOIN customer c ON o.customer_id = c.id
+         LEFT OUTER JOIN order_detail od ON o.id = od.order_id
+GROUP BY o.id;
