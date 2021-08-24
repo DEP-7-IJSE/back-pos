@@ -75,7 +75,7 @@ public class PlaceOrderFormController {
             return new ReadOnlyObjectWrapper<>(btnDelete);
         });
 
-        orderId = generateNewId();
+        orderId = orderService.generateNewOrderId();
         lblId.setText("ORDER ID : " + orderId);
         lblDate.setText(LocalDate.now().toString());
         btnPlaceOrder.setDisable(true);
@@ -251,18 +251,10 @@ public class PlaceOrderFormController {
             cmbCustomerId.getSelectionModel().clearSelection();
             cmbItemCode.getSelectionModel().clearSelection();
             tblOrderDetails.getItems().clear();
+            orderId = orderService.generateNewOrderId();
             lblId.setText("ORDER ID : " + orderId);
             calculateTotal();
         } catch (FailedOperationException | NotFoundException | DuplicateIdentifierException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
-            throw e;
-        }
-    }
-
-    private String generateNewId() throws FailedOperationException {
-        try {
-            return orderService.generateNewOrderId();
-        } catch (FailedOperationException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
             throw e;
         }
